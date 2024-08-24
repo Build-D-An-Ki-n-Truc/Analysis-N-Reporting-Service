@@ -1,11 +1,11 @@
 import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { PrometheusService } from './prometheus.service';
+import { GrafanaService } from './grafana.service';
 import { MessageContextDto } from './dtos/message.dto';
 
 @Controller()
-export class PrometheusController {
-  constructor(private readonly service: PrometheusService) {}
+export class GrafanaController {
+  constructor(private readonly service: GrafanaService) {}
 
   @MessagePattern({
     service: 'monitor',
