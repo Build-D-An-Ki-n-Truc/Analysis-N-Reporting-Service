@@ -4,7 +4,7 @@ import axios from 'axios';
 @Injectable()
 export class GrafanaService {
     private readonly grafanaApiUrl = 'https://haimengg.grafana.net/api';
-    private readonly token = process.env.GRAFANA_CLOUD_TOKEN || "token";
+    private readonly token = process.env.GRAFANA_CLOUD_TOKEN;
 
     constructor() {}
 
