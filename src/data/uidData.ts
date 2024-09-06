@@ -1,8 +1,5 @@
 export const uids = {
-  gamesDBDashboard: "ddun02fisderka",
-  playersDBDashboard: "ddx0ghml3ihhce",
-  brandsDBDashboard: "fdx0ggs4rku0wb",
-  gamesMetricsDashboard: "",
-  playersMetricsDashboard: "",
-  brandsMetricsDashboard: ""
+  gamePlayedTimes: "ddx0ghml3ihhce",
+  activeGames: "fdx0ggs4rku0wb",
+  activeEvents: "cdx0f6xnhcu0wf"
 }

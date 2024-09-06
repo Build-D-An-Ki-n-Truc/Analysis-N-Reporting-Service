@@ -2,98 +2,105 @@ import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GrafanaService } from './grafana.service';
 import { MessageContextDto } from './dtos/message.dto';
+import { ResponsePayload } from './dtos/response.dto';
+import { from, Observable, map, catchError } from 'rxjs';
 
 @Controller()
 export class GrafanaController {
   constructor(private readonly service: GrafanaService) {}
 
-  @MessagePattern({
-    service: 'monitor',
-    endpoint: 'gamesMetrics',
-    method: 'GET',
-  })
-  getGamesMetrics() {
+  private handleError(error: any): ResponsePayload<any> {
     return {
       payload: {
         type: ['info'],
-        status: HttpStatus.OK,
-        data: this.service.getGamesMetricsDashboard(),
+        status: HttpStatus.BAD_REQUEST,
+        data: error.message ?? 'Unexpected error',
       },
     };
   }
 
-  @MessagePattern({
-    service: 'monitor',
-    endpoint: 'playersMetrics',
-    method: 'GET',
-  })
-  getPlayersMetrics() {
+  private wrapResponse<T>(
+    data: T,
+    status: HttpStatus = HttpStatus.OK,
+  ): ResponsePayload<T> {
     return {
       payload: {
         type: ['info'],
-        status: HttpStatus.OK,
-        data: this.service.getPlayersMetricsDashboard(),
+        status,
+        data,
       },
     };
   }
 
+  // @MessagePattern({
+  //   service: 'monitor',
+  //   endpoint: 'gamesMetrics',
+  //   method: 'GET',
+  // })
+  // getGamesMetrics() {
+  //   return from(this.service.getGamesMetricsDashboard()).pipe(
+  //     map((games) => this.wrapResponse(games)),
+  //     catchError((error) => from([this.handleError(error)])),
+  //   );
+  // }
+
+  // @MessagePattern({
+  //   service: 'monitor',
+  //   endpoint: 'playersMetrics',
+  //   method: 'GET',
+  // })
+  // getPlayersMetrics() {
+  //   return from(this.service.getPlayersMetricsDashboard()).pipe(
+  //     map((games) => this.wrapResponse(games)),
+  //     catchError((error) => from([this.handleError(error)])),
+  //   );
+  // }
+
+  // @MessagePattern({
+  //   service: 'monitor',
+  //   endpoint: 'brandsMetrics',
+  //   method: 'GET',
+  // })
+  // getBrandsMetrics() {
+  //   return from(this.service.getBrandsMetricsDashboard()).pipe(
+  //     map((games) => this.wrapResponse(games)),
+  //     catchError((error) => from([this.handleError(error)])),
+  //   );
+  // }
+
   @MessagePattern({
     service: 'monitor',
-    endpoint: 'brandsMetrics',
+    endpoint: 'activeEvents',
     method: 'GET',
   })
-  getBrandsMetrics() {
-    return {
-      payload: {
-        type: ['info'],
-        status: HttpStatus.OK,
-        data: this.service.getBrandsMetricsDashboard(),
-      },
-    };
+  getGamesDB(): Observable<ResponsePayload<any>> {
+    return from(this.service.getActiveEvents()).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
   }
 
   @MessagePattern({
     service: 'monitor',
-    endpoint: 'gamesDB',
-    method: 'GET',
-  })
-  getGamesDB() {
-    return {
-      payload: {
-        type: ['info'],
-        status: HttpStatus.OK,
-        data: this.service.getGamesDBDashboard(),
-      },
-    };
-  }
-
-  @MessagePattern({
-    service: 'monitor',
-    endpoint: 'playersDB',
+    endpoint: 'activeGames',
     method: 'GET',
   })
   getPlayersDB() {
-    return {
-      payload: {
-        type: ['info'],
-        status: HttpStatus.OK,
-        data: this.service.getPlayersDBDashboard(),
-      },
-    };
+    return from(this.service.getActiveGames()).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
   }
 
   @MessagePattern({
     service: 'monitor',
-    endpoint: 'brandsDB',
+    endpoint: 'gamePlayedTimes',
     method: 'GET',
   })
   getBrandsDB() {
-    return {
-      payload: {
-        type: ['info'],
-        status: HttpStatus.OK,
-        data: this.service.getBrandsDBDashboard(),
-      },
-    };
+    return from(this.service.getGamePlayedTimes()).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
   }
 }

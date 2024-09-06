@@ -2,19 +2,21 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 import { uids } from 'src/data/uidData';
 import { dashboards } from 'src/data/dashboardData';
+import { Scope } from '@nestjs/common';
 
 @Injectable()
 export class GrafanaService {
     private readonly grafanaCloudUrl = process.env.GRAFANA_CLOUD_URL;
     private readonly grafanaLocalUrl = process.env.GRAFANA_LOCAL_URL;
     private readonly cloudToken = process.env.GRAFANA_CLOUD_TOKEN;
-    private readonly gamesDBDashboardUID = uids.gamesDBDashboard
-    private readonly playersDBDashboardUID = uids.playersDBDashboard
-    private readonly brandsDBDashboardUID = uids.brandsDBDashboard
+    private readonly activeEventsUID = uids.activeEvents
+    private readonly activeGamesUID = uids.activeGames
+    private readonly gamePlayedTimesUID = uids.gamePlayedTimes
 
     constructor() {
       this.generateLocalToken().then((token: string) => {
-        this.createDashboards(token)
+        console.log(token)
+        // this.createDashboards(token)
       })
     }
 
@@ -41,8 +43,8 @@ export class GrafanaService {
             "name": "monitor-service",
             "role": "Admin"
           }
-          const createServiceAccountResponse: AxiosResponse = await axios.post(`http://admin:admin@${this.grafanaLocalUrl}/api/serviceaccounts`,
-            { headers: {'Content-Type': 'application/json'}, body: createServiceAccountBody }
+          const createServiceAccountResponse: AxiosResponse = await axios.post(`http://admin:admin@${this.grafanaLocalUrl}/api/serviceaccounts`, createServiceAccountBody,
+            { headers: {'Content-Type': 'application/json'}}
           )
           serviceAccountId = createServiceAccountResponse.data.id
         }
@@ -56,10 +58,10 @@ export class GrafanaService {
           )
         }
         const createTokenBody = {
-          "name": "monitor-service-service"
+          "name": "monitor-service-token"
         }
-        const createTokenResponse: AxiosResponse = await axios.post(`http://admin:admin@${this.grafanaLocalUrl}/api/serviceaccounts`,
-          { headers: {'Content-Type': 'application/json'}, body: createTokenBody }
+        const createTokenResponse: AxiosResponse = await axios.post(`http://admin:admin@${this.grafanaLocalUrl}/api/serviceaccounts/${serviceAccountId}/tokens`, createTokenBody,
+          { headers: {'Content-Type': 'application/json'} }
         )
         let localToken = createTokenResponse.data.key
         
@@ -69,30 +71,30 @@ export class GrafanaService {
       }
     }
 
-    private async createDashboards(localToken: string) {
-      for (let dashboardData of dashboards) {
-        const createDashboardResponse: AxiosResponse = await axios.post(`http://${this.grafanaLocalUrl}/api/dashboards/db`,
-          { headers: this.getAuthHeaders(localToken), body: dashboardData }
-        )
-        let data = createDashboardResponse.data
+    // private async createDashboards(localToken: string) {
+    //   for (let dashboardData of dashboards) {
+    //     const createDashboardResponse: AxiosResponse = await axios.post(`http://${this.grafanaLocalUrl}/api/dashboards/db`, dashboardData,
+    //       { headers: this.getAuthHeaders(localToken) }
+    //     )
+    //     let data = createDashboardResponse.data
         
-        switch (dashboardData.dashboard.title) {
-          case ("Games Metrics Data"):
-            uids.gamesMetricsDashboard = data.uid
-            break
-          case ("Players Metrics Data"):
-            uids.playersDBDashboard = data.uid
-            break
-          case ("Brands Metrics Data"):
-            uids.brandsMetricsDashboard = data.uid
-            break
-        }
-      }
-    }
+    //     switch (dashboardData.dashboard.title) {
+    //       case ("Games Metrics Data"):
+    //         uids.gamesMetricsDashboard = data.uid
+    //         break
+    //       case ("Players Metrics Data"):
+    //         uids.playersDBDashboard = data.uid
+    //         break
+    //       case ("Brands Metrics Data"):
+    //         uids.brandsMetricsDashboard = data.uid
+    //         break
+    //     }
+    //   }
+    // }
 
-    async getGamesDBDashboard(): Promise<string> {
+    async getActiveGames(): Promise<string> {
       try {
-        const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.gamesDBDashboardUID}/public-dashboards`,
+        const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.activeGamesUID}/public-dashboards`,
           { headers: this.getAuthHeaders(this.cloudToken) }
         )
         let accessToken = response.data.accessToken
@@ -104,9 +106,9 @@ export class GrafanaService {
       }
     }
 
-    async getPlayersDBDashboard(): Promise<string> {
+    async getActiveEvents(): Promise<string> {
       try {
-        const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.playersDBDashboardUID}/public-dashboards`,
+        const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.activeEventsUID}/public-dashboards`,
           { headers: this.getAuthHeaders(this.cloudToken) }
         )
         let accessToken = response.data.accessToken
@@ -118,51 +120,51 @@ export class GrafanaService {
       }
     }
 
-    async getBrandsMetricsDashboard(): Promise<string> {
-      try {
-        const response: AxiosResponse = await axios.get(`http://${this.grafanaLocalUrl}/api/dashboards/uid/${uids.brandsMetricsDashboard}/public-dashboards`,
-          { headers: this.getAuthHeaders(this.cloudToken) }
-        )
-        let accessToken = response.data.accessToken
+    // async getBrandsMetricsDashboard(): Promise<string> {
+    //   try {
+    //     const response: AxiosResponse = await axios.get(`http://${this.grafanaLocalUrl}/api/dashboards/uid/${uids.brandsMetricsDashboard}/public-dashboards`,
+    //       { headers: this.getAuthHeaders(this.cloudToken) }
+    //     )
+    //     let accessToken = response.data.accessToken
         
-        let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
-        return publicUrl
-      } catch (error) {
-        console.log(error)
-      }
-    }
+    //     let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
+    //     return publicUrl
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // }
 
-    async getGamesMetricsDashboard(): Promise<string> {
-      try {
-        const response: AxiosResponse = await axios.get(`http://${this.grafanaLocalUrl}/api/dashboards/uid/${uids.gamesMetricsDashboard}/public-dashboards`,
-          { headers: this.getAuthHeaders(this.cloudToken) }
-        )
-        let accessToken = response.data.accessToken
+    // async getGamesMetricsDashboard(): Promise<string> {
+    //   try {
+    //     const response: AxiosResponse = await axios.get(`http://${this.grafanaLocalUrl}/api/dashboards/uid/${uids.gamesMetricsDashboard}/public-dashboards`,
+    //       { headers: this.getAuthHeaders(this.cloudToken) }
+    //     )
+    //     let accessToken = response.data.accessToken
         
-        let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
-        return publicUrl
-      } catch (error) {
-        console.log(error)
-      }
-    }
+    //     let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
+    //     return publicUrl
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // }
 
-    async getPlayersMetricsDashboard(): Promise<string> {
-      try {
-        const response: AxiosResponse = await axios.get(`http://${this.grafanaLocalUrl}/api/dashboards/uid/${uids.playersMetricsDashboard}/public-dashboards`,
-          { headers: this.getAuthHeaders(this.cloudToken) }
-        )
-        let accessToken = response.data.accessToken
+    // async getPlayersMetricsDashboard(): Promise<string> {
+    //   try {
+    //     const response: AxiosResponse = await axios.get(`http://${this.grafanaLocalUrl}/api/dashboards/uid/${uids.playersMetricsDashboard}/public-dashboards`,
+    //       { headers: this.getAuthHeaders(this.cloudToken) }
+    //     )
+    //     let accessToken = response.data.accessToken
         
-        let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
-        return publicUrl
-      } catch (error) {
-        console.log(error)
-      }
-    }
+    //     let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
+    //     return publicUrl
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // }
 
-    async getBrandsDBDashboard(): Promise<string> {
+    async getGamePlayedTimes(): Promise<string> {
       try {
-        const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.brandsDBDashboardUID}/public-dashboards`,
+        const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.gamePlayedTimesUID}/public-dashboards`,
           { headers: this.getAuthHeaders(this.cloudToken) }
         )
         let accessToken = response.data.accessToken
