@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { PrometheusModule } from './prometheus/prometheus.module';
+import { GrafanaModule } from './grafana/grafana.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
-  imports: [PrometheusModule, HealthModule],
+  imports: [GrafanaModule, HealthModule],
   controllers: [],
   providers: [],
 })

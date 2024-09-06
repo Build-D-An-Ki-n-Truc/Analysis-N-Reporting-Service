@@ -1,0 +1,106 @@
+import { Controller, HttpStatus } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { GrafanaService } from './grafana.service';
+import { MessageContextDto } from './dtos/message.dto';
+import { ResponsePayload } from './dtos/response.dto';
+import { from, Observable, map, catchError } from 'rxjs';
+
+@Controller()
+export class GrafanaController {
+  constructor(private readonly service: GrafanaService) {}
+
+  private handleError(error: any): ResponsePayload<any> {
+    return {
+      payload: {
+        type: ['info'],
+        status: HttpStatus.BAD_REQUEST,
+        data: error.message ?? 'Unexpected error',
+      },
+    };
+  }
+
+  private wrapResponse<T>(
+    data: T,
+    status: HttpStatus = HttpStatus.OK,
+  ): ResponsePayload<T> {
+    return {
+      payload: {
+        type: ['info'],
+        status,
+        data,
+      },
+    };
+  }
+
+  // @MessagePattern({
+  //   service: 'monitor',
+  //   endpoint: 'gamesMetrics',
+  //   method: 'GET',
+  // })
+  // getGamesMetrics() {
+  //   return from(this.service.getGamesMetricsDashboard()).pipe(
+  //     map((games) => this.wrapResponse(games)),
+  //     catchError((error) => from([this.handleError(error)])),
+  //   );
+  // }
+
+  // @MessagePattern({
+  //   service: 'monitor',
+  //   endpoint: 'playersMetrics',
+  //   method: 'GET',
+  // })
+  // getPlayersMetrics() {
+  //   return from(this.service.getPlayersMetricsDashboard()).pipe(
+  //     map((games) => this.wrapResponse(games)),
+  //     catchError((error) => from([this.handleError(error)])),
+  //   );
+  // }
+
+  // @MessagePattern({
+  //   service: 'monitor',
+  //   endpoint: 'brandsMetrics',
+  //   method: 'GET',
+  // })
+  // getBrandsMetrics() {
+  //   return from(this.service.getBrandsMetricsDashboard()).pipe(
+  //     map((games) => this.wrapResponse(games)),
+  //     catchError((error) => from([this.handleError(error)])),
+  //   );
+  // }
+
+  @MessagePattern({
+    service: 'monitor',
+    endpoint: 'activeEvents',
+    method: 'GET',
+  })
+  getGamesDB(): Observable<ResponsePayload<any>> {
+    return from(this.service.getActiveEvents()).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
+  }
+
+  @MessagePattern({
+    service: 'monitor',
+    endpoint: 'activeGames',
+    method: 'GET',
+  })
+  getPlayersDB() {
+    return from(this.service.getActiveGames()).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
+  }
+
+  @MessagePattern({
+    service: 'monitor',
+    endpoint: 'gamePlayedTimes',
+    method: 'GET',
+  })
+  getBrandsDB() {
+    return from(this.service.getGamePlayedTimes()).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
+  }
+}
