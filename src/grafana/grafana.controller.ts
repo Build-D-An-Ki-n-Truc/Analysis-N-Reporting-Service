@@ -73,7 +73,7 @@ export class GrafanaController {
     endpoint: 'activeEvents',
     method: 'GET',
   })
-  getGamesDB(): Observable<ResponsePayload<any>> {
+  getActiveEvents(): Observable<ResponsePayload<any>> {
     return from(this.service.getActiveEvents()).pipe(
       map((games) => this.wrapResponse(games)),
       catchError((error) => from([this.handleError(error)])),
@@ -85,7 +85,7 @@ export class GrafanaController {
     endpoint: 'activeGames',
     method: 'GET',
   })
-  getPlayersDB() {
+  getActiveGames() {
     return from(this.service.getActiveGames()).pipe(
       map((games) => this.wrapResponse(games)),
       catchError((error) => from([this.handleError(error)])),
@@ -97,7 +97,7 @@ export class GrafanaController {
     endpoint: 'gamePlayedTimes',
     method: 'GET',
   })
-  getBrandsDB() {
+  getGamePlayedTimes() {
     return from(this.service.getGamePlayedTimes()).pipe(
       map((games) => this.wrapResponse(games)),
       catchError((error) => from([this.handleError(error)])),
