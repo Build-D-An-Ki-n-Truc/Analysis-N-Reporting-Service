@@ -94,10 +94,12 @@ export class GrafanaService {
 
     async getActiveGames(): Promise<string> {
       try {
+        console.log("1")
         const response: AxiosResponse = await axios.get(`${this.grafanaCloudUrl}/api/dashboards/uid/${this.activeGamesUID}/public-dashboards`,
           { headers: this.getAuthHeaders(this.cloudToken) }
         )
         let accessToken = response.data.accessToken
+        console.log("2")
         
         let publicUrl = `${this.grafanaCloudUrl}/public-dashboards/${accessToken}`
         return publicUrl
