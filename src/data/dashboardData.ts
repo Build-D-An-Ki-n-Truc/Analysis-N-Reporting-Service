@@ -20,7 +20,7 @@ export function getDiscountStatusDashboard(brandId: string) {
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": null,
+      "id": 16,
       "links": [],
       "panels": [
         {
@@ -69,7 +69,15 @@ export function getDiscountStatusDashboard(brandId: string) {
                 ]
               }
             },
-            "overrides": []
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "event_id"
+                },
+                "properties": []
+              }
+            ]
           },
           "gridPos": {
             "h": 8,
@@ -106,15 +114,15 @@ export function getDiscountStatusDashboard(brandId: string) {
                 "type": "grafana-mongodb-datasource",
                 "uid": "edx4atc16l0jke"
               },
-              "parsedQuery": "db.events.find({\"brand_id\":\"" + brandId + "\"}, {\"_id\":0,\"event_id\":\"$_id\",\"name\":1,\"start_date\":1,\"end_date\":1});",
-              "query": "db.events.find(\r\n  { brand_id: \"" + brandId + "\" },\r\n  {\r\n    _id: 0,                   // Exclude the original _id field\r\n    event_id: \"$_id\",          // Rename _id to event_id\r\n    name: 1,                   // Include other fields (optional)\r\n    start_date: 1,\r\n    end_date: 1\r\n  }\r\n);",
+              "parsedQuery": "db.events.find({\"brand_id\":\"" + brandId + "\"}, {\"_id\":0,\"brand_id\":1,\"event_id\":{\"$toString\":\"$_id\"},\"name\":1,\"start_date\":1,\"end_date\":1});",
+              "query": "db.events.find(\r\n  { brand_id: \"" + brandId + "\" },\r\n  {\r\n    _id: 0,                   // Exclude the original _id field\r\n    brand_id: 1,\r\n    event_id: { $toString: \"$_id\" },          // Rename _id to event_id\r\n    name: 1,                   // Include other fields (optional)\r\n    start_date: 1,\r\n    end_date: 1\r\n  }\r\n);",
               "queryType": "query",
               "refId": "A"
             },
             {
               "datasource": {
                 "type": "grafana-mongodb-datasource",
-                "uid": "bdx6vxs6wcruod"
+                "uid": "edx4atc16l0jke"
               },
               "hide": false,
               "parsedQuery": "db.vouchers.find({});",
@@ -130,6 +138,24 @@ export function getDiscountStatusDashboard(brandId: string) {
               "options": {
                 "byField": "event_id",
                 "mode": "outerTabular"
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "config": {
+                      "id": "equal",
+                      "options": {
+                        "value": brandId
+                      }
+                    },
+                    "fieldName": "brand_id"
+                  }
+                ],
+                "match": "any",
+                "type": "include"
               }
             },
             {
@@ -264,15 +290,15 @@ export function getDiscountStatusDashboard(brandId: string) {
                 "type": "grafana-mongodb-datasource",
                 "uid": "edx4atc16l0jke"
               },
-              "parsedQuery": "db.events.find({\"brand_id\":\"" + brandId + "\"}, {\"_id\":0,\"event_id\":\"$_id\",\"name\":1,\"start_date\":1,\"end_date\":1});",
-              "query": "db.events.find(\r\n  { brand_id: \"" + brandId + "\" },\r\n  {\r\n    _id: 0,                   // Exclude the original _id field\r\n    event_id: \"$_id\",          // Rename _id to event_id\r\n    name: 1,                   // Include other fields (optional)\r\n    start_date: 1,\r\n    end_date: 1\r\n  }\r\n);",
+              "parsedQuery": "db.events.find({\"brand_id\":\"" + brandId + "\"}, {\"_id\":0,\"brand_id\":1,\"event_id\":{\"$toString\":\"$_id\"},\"name\":1,\"start_date\":1,\"end_date\":1});",
+              "query": "db.events.find(\r\n  { brand_id: \"" + brandId + "\" },\r\n  {\r\n    _id: 0,                   // Exclude the original _id field\r\n    brand_id: 1,\r\n    event_id: { $toString: \"$_id\" },          // Rename _id to event_id\r\n    name: 1,                   // Include other fields (optional)\r\n    start_date: 1,\r\n    end_date: 1\r\n  }\r\n);",
               "queryType": "query",
               "refId": "A"
             },
             {
               "datasource": {
                 "type": "grafana-mongodb-datasource",
-                "uid": "bdx6vxs6wcruod"
+                "uid": "edx4atc16l0jke"
               },
               "hide": false,
               "parsedQuery": "db.vouchers.find({});",
@@ -288,6 +314,24 @@ export function getDiscountStatusDashboard(brandId: string) {
               "options": {
                 "byField": "event_id",
                 "mode": "outerTabular"
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "config": {
+                      "id": "equal",
+                      "options": {
+                        "value": brandId
+                      }
+                    },
+                    "fieldName": "brand_id"
+                  }
+                ],
+                "match": "any",
+                "type": "include"
               }
             },
             {
@@ -418,7 +462,7 @@ export function getDiscountStatusDashboard(brandId: string) {
           "gridPos": {
             "h": 8,
             "w": 12,
-            "x": 0,
+            "x": 6,
             "y": 8
           },
           "id": 3,
@@ -441,15 +485,15 @@ export function getDiscountStatusDashboard(brandId: string) {
                 "type": "grafana-mongodb-datasource",
                 "uid": "edx4atc16l0jke"
               },
-              "parsedQuery": "db.events.find({\"brand_id\":\"" + brandId + "\"}, {\"_id\":0,\"event_id\":\"$_id\",\"name\":1,\"start_date\":1,\"end_date\":1,\"voucher_quantity\":1});",
-              "query": "db.events.find(\r\n  { brand_id: \"" + brandId + "\" },\r\n  {\r\n    _id: 0,                   // Exclude the original _id field\r\n    event_id: \"$_id\",          // Rename _id to event_id\r\n    name: 1,                   // Include other fields (optional)\r\n    start_date: 1,\r\n    end_date: 1,\r\n    voucher_quantity: 1\r\n  }\r\n);",
+              "parsedQuery": "db.events.find({\"brand_id\":\"" + brandId + "\"}, {\"_id\":0,\"brand_id\":1,\"event_id\":{\"$toString\":\"$_id\"},\"name\":1,\"start_date\":1,\"end_date\":1,\"voucher_quantity\":1});",
+              "query": "db.events.find(\r\n  { brand_id: \"" + brandId + "\" },\r\n  {\r\n    _id: 0,                   // Exclude the original _id field\r\n    brand_id: 1,\r\n    event_id: { $toString: \"$_id\" },          // Rename _id to event_id\r\n    name: 1,                   // Include other fields (optional)\r\n    start_date: 1,\r\n    end_date: 1,\r\n    voucher_quantity: 1\r\n  }\r\n);",
               "queryType": "query",
               "refId": "A"
             },
             {
               "datasource": {
                 "type": "grafana-mongodb-datasource",
-                "uid": "bdx6vxs6wcruod"
+                "uid": "edx4atc16l0jke"
               },
               "hide": false,
               "parsedQuery": "db.vouchers.find({});",
@@ -465,6 +509,24 @@ export function getDiscountStatusDashboard(brandId: string) {
               "options": {
                 "byField": "event_id",
                 "mode": "outerTabular"
+              }
+            },
+            {
+              "id": "filterByValue",
+              "options": {
+                "filters": [
+                  {
+                    "config": {
+                      "id": "equal",
+                      "options": {
+                        "value": brandId
+                      }
+                    },
+                    "fieldName": "brand_id"
+                  }
+                ],
+                "match": "any",
+                "type": "include"
               }
             },
             {
@@ -514,13 +576,14 @@ export function getDiscountStatusDashboard(brandId: string) {
         "list": []
       },
       "time": {
-        "from": "2024-08-17T07:45:39.250Z",
-        "to": "2024-08-30T01:09:51.018Z"
+        "from": "2024-08-01T18:21:51.009Z",
+        "to": "2024-09-18T16:07:03.553Z"
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Discount Status for " + brandId,
-      "uid": null,
+      "title": "Discount Status",
+      "uid": "edx6vv6lsb280a",
+      "version": 41,
       "weekStart": ""
     },
     "message": "Made changes to xyz",
