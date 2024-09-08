@@ -103,4 +103,25 @@ export class GrafanaController {
       catchError((error) => from([this.handleError(error)])),
     );
   }
+
+  @MessagePattern({
+    service: 'monitor',
+    endpoint: 'discountStatus',
+    method: 'GET',
+  })
+  getDiscountStatus(@Payload() message: MessageContextDto) {
+    if (!message.params.brandId) {
+        return {
+            payload: {
+                type: ['info'],
+                status: HttpStatus.BAD_REQUEST,
+                data: "Missing params in [brand_id, event_id]"
+            }
+        }
+    }
+    return from(this.service.getDiscountStatus(message.params.brandId)).pipe(
+      map((games) => this.wrapResponse(games)),
+      catchError((error) => from([this.handleError(error)])),
+    );
+  }
 }
